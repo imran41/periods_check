@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pregnancy Safe Date Checker</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #fff5f7;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 38px;
+            font-weight: bold;
+            color: #ff4b6e;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: gray;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 25px;
+            background: #ff4b6e;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #e6395c;
+        }
+
+        .result-box {
+            margin-top: 30px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .safe-box {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .unsafe-box {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .warning {
+            margin-top: 30px;
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="title">
+            ❤️ Pregnancy Safe Date Checker
+        </div>
+
+        <div class="subtitle">
+            Track Safe & Unsafe Days Easily
+        </div>
+
+        <label>
+            Select Period Start Date
+        </label>
+
+        <input type="date" id="periodDate">
+
+        <label>
+            Select Cycle Length
+        </label>
+
+        <select id="cycleLength">
+
+            <option value="26">
+                26 Days
+            </option>
+
+            <option value="28" selected>
+                28 Days
+            </option>
+
+            <option value="30">
+                30 Days
+            </option>
+
+        </select>
+
+        <button onclick="checkDates()">
+            🔍 Check Safe / Unsafe Dates
+        </button>
+
+        <div class="result-box" id="resultBox">
+
+        </div>
+
+        <div class="warning">
+            ⚠️ This app gives only estimated fertility dates.
+            It is NOT a guaranteed birth control method.
+        </div>
+
+    </div>
+
+    <script>
+
+        function formatDate(date) {
+
+            let day = String(date.getDate()).padStart(2, '0');
+
+            let month = String(date.getMonth() + 1).padStart(2, '0');
+
+            let year = date.getFullYear();
+
+            return `${day}-${month}-${year}`;
+        }
+
+        function checkDates() {
+
+            let periodDate =
+                document.getElementById("periodDate").value;
+
+            let cycleLength =
+                parseInt(
+                    document.getElementById("cycleLength").value
+                );
+
+            if (!periodDate) {
+
+                alert("Please select period date");
+
+                return;
+            }
+
+            let startDate = new Date(periodDate);
+
+            // Ovulation calculation
+            let ovulationDay = new Date(startDate);
+
+            ovulationDay.setDate(
+                ovulationDay.getDate() + (cycleLength - 14)
+            );
+
+            // Fertile window
+            let fertileStart = new Date(ovulationDay);
+
+            fertileStart.setDate(
+                fertileStart.getDate() - 5
+            );
+
+            let fertileEnd = new Date(ovulationDay);
+
+            fertileEnd.setDate(
+                fertileEnd.getDate() + 2
+            );
+
+            let resultHTML = "";
+
+            resultHTML += `
+                <div class="info-card">
+                    ❤️ Ovulation Date:
+                    ${formatDate(ovulationDay)}
+                </div>
+            `;
+
+            resultHTML += `
+                <div class="info-card">
+                    ⚠️ Unsafe Dates:
+                    ${formatDate(fertileStart)}
+                    to
+                    ${formatDate(fertileEnd)}
+                </div>
+            `;
+
+            resultHTML += `
+                <h2>
+                    📅 Daily Status
+                </h2>
+            `;
+
+            for (let i = 0; i < cycleLength; i++) {
+
+                let currentDate = new Date(startDate);
+
+                currentDate.setDate(
+                    currentDate.getDate() + i
+                );
+
+                if (
+                    currentDate >= fertileStart &&
+                    currentDate <= fertileEnd
+                ) {
+
+                    resultHTML += `
+                        <div class="unsafe-box">
+                            ❌ ${formatDate(currentDate)}
+                            → UNSAFE
+                            (Pregnancy chance high)
+                        </div>
+                    `;
+
+                } else {
+
+                    resultHTML += `
+                        <div class="safe-box">
+                            ✅ ${formatDate(currentDate)}
+                            → SAFE
+                            (Pregnancy chance low)
+                        </div>
+                    `;
+                }
+            }
+
+            document.getElementById("resultBox").innerHTML =
+                resultHTML;
+        }
+
+    </script>
+
+</body>
+
+</html>
